@@ -1,44 +1,49 @@
-import { galleryItems } from "./gallery-items.js";
+import { galleryItems } from './gallery-items.js';
 // Change code below this line
 
-console.log(galleryItems);
+const galleryContainer = document.querySelector('div.gallery');
+const photosMarkup = createGalleryItem(galleryItems);
 
-const containerGallery = document.querySelector(".gallery");
-
-const galleryMarkup = galleryItems
-  .map(
-    (element) =>
-      `<li class= "gallery__item">
-      <a class= "gallery__link" href="${element.original}">
+function createGalleryItem(element) {
+    return element
+        .map(({ preview, original, description }) => {
+            return `
+        <div class='gallery_item'>
+        <a class= "gallery__link" href="${original}">
         <img
-            class= "gallery__image"
-            src= "${element.preview}"
-            data-source= "${element.original}"
-            alt= "${element.description}"
-          />
-      </a>
-    </li>`
-  )
-  .join("");
+        class = "gallery__image"
+        src="${preview}"
+        data-source="${original}"
+        alt="${description}"
+        />
+        </a>
+        </div>`;
+        })
 
-containerGallery.insertAdjacentHTML("afterbegin", galleryMarkup);
-containerGallery.addEventListener("click", originalIMage); 
+        .join('');
+};
 
-function originalIMage(event) {
-  event.preventDefault();
 
-  if (event.target.nodeName !== "IMG") {
-    return;
-  }
+const galleryHandler = (event) => {
+    event.preventDefault();
 
-  const instance = basicLightbox.create(
-    `<img src="${event.target.dataset.source}">`
-  );
-  instance.show();
+    if (event.target.nodeName !== 'IMG') {
+        return;
+    };
+    
+    const originalUrl = event.target.dataset.source;
+    const instance = basicLightbox.create(`<img src="${originalUrl}">`);
 
-  containerGallery.addEventListener("keydown", (event) => {
-    if (event.code === "Escape") {
-      instance.close();
+    instance.show();
+    window.addEventListener('keydown', onEsckeyPress);
+
+    function onEsckeyPress(event) {
+        const ESC_KEY_CODE = 'Escape';
+        if (event.code === ESC_KEY_CODE) {
+            instance.close();
+            window.removeEventListener('keydown', onEsckeyPress);
+        }
     }
-  });
-}
+};
+galleryContainer.insertAdjacentHTML('beforeend', photosMarkup);
+galleryContainer.addEventListener('click', galleryHandler);
